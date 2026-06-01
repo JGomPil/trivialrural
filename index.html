@@ -719,7 +719,24 @@ function checkPassword(){
   const val=document.getElementById('pwInput').value;
   if(val==='parquesol69'){
     showScreen('joinScreen');
-    connectWS(null);
+    // Rellenar nombre y color guardados
+    const savedName=localStorage.getItem('trivial_name');
+    const savedColor=localStorage.getItem('trivial_color');
+    const savedId=localStorage.getItem('trivial_pid');
+    if(savedName) document.getElementById('nameInput').value=savedName;
+    if(savedColor){
+      myColor=savedColor;
+      document.querySelectorAll('.color-swatch').forEach(s=>{
+        s.classList.toggle('selected',s.dataset.color===savedColor);
+      });
+    }
+    // Si tenemos sesión guardada, reconectar automáticamente
+    if(savedId&&savedName){
+      myId=savedId;myName=savedName;
+      connectWS(()=>send({action:'join',player_id:myId,name:myName,color:myColor||PLAYER_COLORS[0]}));
+    } else {
+      connectWS(null);
+    }
   } else {
     const err=document.getElementById('pwError');
     err.textContent='Contraseña incorrecta';
@@ -835,9 +852,10 @@ function joinGame(){
   const name=document.getElementById('nameInput').value.trim();
   if(!name){toast('Escribe tu nombre');return;}
   myName=name;
-  // Reutilizar el mismo ID si ya existe, para que el servidor nos reconozca
   myId=localStorage.getItem('trivial_pid')||('p_'+Math.random().toString(36).slice(2,8));
   localStorage.setItem('trivial_pid',myId);
+  localStorage.setItem('trivial_name',name);
+  localStorage.setItem('trivial_color',myColor);
   const dj=()=>send({action:'join',player_id:myId,name,color:myColor});
   ws&&ws.readyState===WebSocket.OPEN?dj():connectWS(dj);
 }
