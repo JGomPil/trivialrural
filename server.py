@@ -363,7 +363,7 @@ async def run_timer():
         else:
             state["phase"] = "answer_reveal"; state["turn_ended"] = True
             await broadcast("answer_reveal", {
-                "correct":False,"correct_index":cq["correct_index"],"chosen_index":idx if cq else -1,
+                "correct":False,"correct_index":cq["correct_index"],"chosen_index":-1,
                 "message":f"⏱ ¡Tiempo! Era: {cq['correct'] if cq else '?'}",
                 "turn_ended":True})
 
@@ -414,7 +414,7 @@ async def _center_fail(cq):
     msg = f"✗ Fallaste. Era: {cq['correct'] if cq else '?'}."
     if lost_name: msg += f" Pierdes el quesito de {lost_name}."
     await broadcast("answer_reveal", {
-        "correct":False,"correct_index":cq["correct_index"],"chosen_index":idx if cq else -1,
+        "correct":False,"correct_index":cq["correct_index"],"chosen_index":-1,
         "message":msg,"turn_ended":True,"center_fail":True})
 
 # ── HANDLERS ──────────────────────────────────────────────────────────────
