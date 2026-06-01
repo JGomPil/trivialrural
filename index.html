@@ -559,23 +559,8 @@ html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--cream);
 </head>
 <body>
 
-<!-- PASSWORD -->
-<div class="screen active" id="passwordScreen">
-  <div class="join-hero" style="position:relative;z-index:1;">
-    <p class="join-tagline">Casa Rural - Edicion Amigos</p>
-    <div class="join-logo"><span class="word-trivial">Trivial</span><span class="word-rural">Rural</span></div>
-  </div>
-  <div class="join-card" style="position:relative;z-index:1;">
-    <div style="font-size:48px;text-align:center">lock</div>
-    <h3 class="join-card-title">Acceso privado</h3>
-    <div class="field"><label>Contrasena</label><input id="pwInput" type="password" placeholder="..." maxlength="30" autocomplete="off"></div>
-    <button class="btn btn-gold" style="margin-top:6px" onclick="checkPassword()">Entrar</button>
-    <p style="color:#EF5350;font-size:12px;text-align:center;margin-top:8px;min-height:18px;" id="pwError"></p>
-  </div>
-</div>
-
 <!-- JOIN -->
-<div class="screen" id="joinScreen">
+<div class="screen active" id="joinScreen">
   <div class="join-hero">
     <p class="join-tagline">Casa Rural · Edición Amigos</p>
     <div class="join-logo">
@@ -789,7 +774,7 @@ function connectWS(cb){
   ws.onclose=()=>{st.textContent='Reconectando…';st.className='conn-status err';setTimeout(()=>connectWS(null),2500);};
   ws.onerror=()=>ws.close();
 }
-// ws on password
+window.addEventListener('load',()=>connectWS(null));
 function send(o){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(o));}
 
 function joinGame(){
@@ -1494,20 +1479,6 @@ _canvas.addEventListener('click',onCanvasTap);
 _canvas.addEventListener('touchend',e=>{e.preventDefault();onCanvasTap(e);},{passive:false});
 document.getElementById('nameInput').focus();
 document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')joinGame();});
-
-function checkPassword(){
-  var v=document.getElementById('pwInput').value;
-  if(v==='parquesol69'){
-    showScreen('joinScreen');
-    connectWS(null);
-  } else {
-    var e=document.getElementById('pwError');
-    e.textContent='Contrasena incorrecta';
-    document.getElementById('pwInput').value='';
-    setTimeout(function(){e.textContent='';},2500);
-  }
-}
-document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')checkPassword();});
 </script>
 </body>
 </html>
