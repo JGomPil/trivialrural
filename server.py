@@ -422,16 +422,28 @@ async def handle_join(ws, data):
     pid   = data.get("player_id") or f"p{len(state['players'])+1}"
     name  = data.get("name","Jugador")[:20]
     color = data.get("color","")
-    if color in state["taken_colors"] or color not in PLAYER_COLORS:
-        avail = [c for c in PLAYER_COLORS if c not in state["taken_colors"]]
-        color = avail[0] if avail else PLAYER_COLORS[0]
+
+    # Jugador ya existe (reconexión): devolverle su estado sin importar la fase
     existing = next((p for p in state["players"] if p["id"]==pid), None)
     if existing:
+        # Actualizar nombre por si acaso
+        existing["name"] = name
         clients[ws] = pid
         await ws.send_str(json.dumps({"type":"joined","player_id":pid,
             "is_host":pid==state["host_id"],"state":public_state()}))
         return
-    if state["phase"] != "lobby": return
+
+    # Jugador nuevo: solo se permite en lobby
+    if state["phase"] != "lobby":
+        # Servidor reinició y no conoce a este jugador — añadirle como nuevo
+        # solo si el estado es lobby, si no, informar de que la partida está en curso
+        await ws.send_str(json.dumps({"type":"error",
+            "message":"La partida ya ha comenzado. Espera a la siguiente."}))
+        return
+
+    if color in state["taken_colors"] or color not in PLAYER_COLORS:
+        avail = [c for c in PLAYER_COLORS if c not in state["taken_colors"]]
+        color = avail[0] if avail else PLAYER_COLORS[0]
     state["taken_colors"].append(color)
     idx = len(state["players"])
     state["players"].append({"id":pid,"name":name,"color":color,

@@ -844,6 +844,7 @@ function joinGame(){
 
 // ── MESSAGES ─────────────────────────────────────────────────────────────
 function handleMsg(msg){
+  if(msg.type==='error'){toast(msg.message||'Error');return;}
   if(msg.type==='joined'){
     myId=msg.player_id;isHost=msg.is_host;gameState=msg.state;
     (gameState.players||[]).forEach(p=>{animPositions[p.id]=p.pos;});
