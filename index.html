@@ -547,6 +547,22 @@ html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--cream);
 }
 #toast.show{transform:translateX(-50%) translateY(0);}
 
+/* ─────────────────────────────────────────────────────────
+   PASSWORD SCREEN
+───────────────────────────────────────────────────────── */
+#passwordScreen{
+  align-items:center;justify-content:center;padding:24px 20px;
+  background:
+    radial-gradient(ellipse 140% 55% at 50% -5%,rgba(201,151,58,.14) 0%,transparent 55%),
+    linear-gradient(175deg,#060C08 0%,#080F0A 45%,#0B1710 100%);
+}
+#passwordScreen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9973A' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.pw-lock{font-size:48px;margin-bottom:12px;text-align:center;}
+.pw-error{color:#EF5350;font-size:12px;text-align:center;margin-top:8px;min-height:18px;letter-spacing:.02em;}
+
 /* NOTIF */
 #notifOverlay{
   position:fixed;inset:0;background:rgba(4,8,5,.9);
@@ -559,8 +575,28 @@ html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--cream);
 </head>
 <body>
 
+<!-- PASSWORD -->
+<div class="screen active" id="passwordScreen">
+  <div class="join-hero" style="position:relative;z-index:1;">
+    <p class="join-tagline">Casa Rural · Edición Amigos</p>
+    <div class="join-logo">
+      <span class="word-trivial">Trivial</span>
+      <span class="word-rural">Rural</span>
+    </div>
+  </div>
+  <div class="join-card" style="position:relative;z-index:1;">
+    <div class="pw-lock">🔒</div>
+    <h3 class="join-card-title">Acceso privado</h3>
+    <div class="field"><label>Contraseña</label>
+      <input id="pwInput" type="password" placeholder="••••••••" maxlength="30" autocomplete="off">
+    </div>
+    <button class="btn btn-gold" style="margin-top:6px" onclick="checkPassword()">Entrar →</button>
+    <p class="pw-error" id="pwError"></p>
+  </div>
+</div>
+
 <!-- JOIN -->
-<div class="screen active" id="joinScreen">
+<div class="screen" id="joinScreen">
   <div class="join-hero">
     <p class="join-tagline">Casa Rural · Edición Amigos</p>
     <div class="join-logo">
@@ -678,6 +714,24 @@ html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--cream);
 <div id="toast"></div>
 
 <script>
+// ── PASSWORD ──────────────────────────────────────────────────────────────
+function checkPassword(){
+  const val=document.getElementById('pwInput').value;
+  if(val==='parquesol69'){
+    showScreen('joinScreen');
+    connectWS(null);
+  } else {
+    const err=document.getElementById('pwError');
+    err.textContent='Contraseña incorrecta';
+    document.getElementById('pwInput').value='';
+    setTimeout(()=>err.textContent='',2500);
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const pi=document.getElementById('pwInput');
+  if(pi) pi.addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
+});
+
 // ── CONSTANTS ─────────────────────────────────────────────────────────────
 const wsUrl=`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws`;
 const LETTERS=['A','B','C','D'];
@@ -774,7 +828,7 @@ function connectWS(cb){
   ws.onclose=()=>{st.textContent='Reconectando…';st.className='conn-status err';setTimeout(()=>connectWS(null),2500);};
   ws.onerror=()=>ws.close();
 }
-window.addEventListener('load',()=>connectWS(null));
+// connectWS se llama tras validar contraseña
 function send(o){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(o));}
 
 function joinGame(){
