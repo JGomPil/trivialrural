@@ -867,7 +867,15 @@ function handleMsg(msg){
     myId=msg.player_id;isHost=msg.is_host;gameState=msg.state;
     (gameState.players||[]).forEach(p=>{animPositions[p.id]=p.pos;});
     updateColorSwatches(gameState.taken_colors||[]);
-    showScreen('lobbyScreen');renderLobby();return;
+    if(gameState.phase==='lobby'){
+      showScreen('lobbyScreen');renderLobby();
+    } else if(gameState.phase==='finished'){
+      showScreen('gameScreen');renderGame();showWinner();
+    } else {
+      showScreen('gameScreen');renderGame();
+      if(gameState.phase==='question'&&gameState.current_question) showQuestionOverlay();
+    }
+    return;
   }
   if(msg.state)gameState=msg.state;
 
