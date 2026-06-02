@@ -266,8 +266,7 @@ def load_questions(path):
     qs = {c["id"]:[] for c in CATEGORIES}
     try:
         with open(path, newline='', encoding='utf-8') as f:
-            # Añadimos el delimitador punto y coma
-            for row in csv.DictReader(f, delimiter=';'):
+            for row in csv.DictReader(f):
                 cat_id = CAT_NAME_TO_ID.get(row.get("categoria","").strip())
                 if not cat_id: continue
                 answers = [row.get(k,"").strip() for k in
@@ -641,16 +640,15 @@ async def handle_chat(ws, data):
 
 async def handle_restart(ws):
     cancel_timer()
-    for p in state["players"]:
-        p["pos"] = CENTER; p["wedges"] = []; p["score"] = 0
     state.update(phase="lobby",current_player=0,current_question=None,
                  dice_value=None,winner=None,chat=[],used_questions={},
                  timer_remaining=None,turn_ended=False,anim_steps=[],
-                 taken_colors=[],pending_direction=False,pending_dice=None,
+                 players=[],taken_colors=[],host_id=None,
+                 pending_direction=False,pending_dice=None,
                  possible_dests={},center_challenge=False,
                  center_cats_remaining=[],center_cats_correct=[])
     state.pop("center_challenge_pending", None)
-    await broadcast("restarted", {"message":"♻️ Reiniciada."})
+    await broadcast("reset_to_start", {"message":"♻️ Nueva partida — vuelve a unirte"})
 
 # ── WS / HTTP ─────────────────────────────────────────────────────────────
 async def ws_handler(request):

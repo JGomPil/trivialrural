@@ -885,6 +885,13 @@ function handleMsg(msg){
       renderLobby();toast(msg.message);break;
     case 'timer_set':   renderLobby();toast(msg.message);break;
     case 'game_started':showScreen('gameScreen');renderGame();toast(msg.message);break;
+    case 'reset_to_start':
+      localStorage.removeItem('trivial_name');
+      localStorage.removeItem('trivial_color');
+      localStorage.removeItem('trivial_pid');
+      myId=null;myName=null;isHost=false;gameState=null;
+      showScreen('passwordScreen');
+      toast('Nueva partida — vuelve a entrar');break;
 
     case 'choose_direction':{
       const cur=gameState.players[gameState.current_player];
