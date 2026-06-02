@@ -266,7 +266,7 @@ def load_questions(path):
     qs = {c["id"]:[] for c in CATEGORIES}
     try:
         with open(path, newline='', encoding='utf-8') as f:
-            for row in csv.DictReader(f):
+            for row in csv.DictReader(f, delimiter=';'):
                 cat_id = CAT_NAME_TO_ID.get(row.get("categoria","").strip())
                 if not cat_id: continue
                 answers = [row.get(k,"").strip() for k in
